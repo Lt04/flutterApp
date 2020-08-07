@@ -34,14 +34,12 @@ class OntapState extends State<Ontap>{
             FlatButton(
               color: Colors.green,
               child: Text("Confirm change"),
-              onPressed: (){
+              onPressed: () async{
                 var myjson = {'title': textController.text};
                 String newjson = jsonEncode(myjson);
-                http.put('https://jsonplaceholder.typicode.com/albums/' + widget.title, body: newjson, headers: {"Content-type": "application/json; charset=UTF-8"})
-                .then((response){
-                  setState(() {
+                var response = await http.put('https://jsonplaceholder.typicode.com/albums/' + widget.title, body: newjson, headers: {"Content-type": "application/json; charset=UTF-8"});
+                setState(() {
                    message = "The element number " + Album.fromJson(json.decode(response.body)).id.toString() + " has been changed."; 
-                  });
                 });
               }
             ),

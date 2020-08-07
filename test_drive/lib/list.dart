@@ -5,6 +5,10 @@ import 'package:test_drive/ontap.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wifi/wifi.dart';
+import 'package:connectivity/connectivity.dart';
+import 'dart:async';
+import 'package:test_drive/menu.dart';
+
 
 class PasteList extends StatefulWidget{
 
@@ -23,6 +27,10 @@ class ListState extends State<PasteList>{
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     super.initState();
+    Timer.periodic(Duration(seconds: 1), (Timer t){
+      setState(() { 
+      });
+    });
   }
 
   @override
@@ -39,6 +47,37 @@ class ListState extends State<PasteList>{
     }
   }
 
+  void wifiModal(String name) {
+    TextEditingController textController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Password"),
+          content: TextField(controller: textController),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: Text("Connect"),
+              onPressed: (){
+                Wifi.connection(name, textController.text).then((result){
+                  if(result == WifiState.success){
+                    Navigator.of(context).pop();
+                  }
+                });
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Widget wifiList(){
     return FutureBuilder(
       future: getWifi(),
@@ -49,8 +88,28 @@ class ListState extends State<PasteList>{
                return ListTile(
                  subtitle: Text(snapshot.data[i].level.toString()),
                  title: Text(snapshot.data[i].ssid.toString()),
-                 leading: Icon(FontAwesome.wifi, color: Colors.green)
+                 leading: Icon(FontAwesome.wifi, color: Colors.green),
+                 onTap: (){
+                   Connectivity().getWifiName().then((name){
+                    if(name == null){
+                      wifiModal(snapshot.data[i].ssid.toString());
+                    }
+                    else if(name != null && name == snapshot.data[i].ssid.toString()){
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context)=>Menu(
+                          name: snapshot.data[i].ssid.toString(),
+                        ))
+                      ); 
+                    }
+                    else{
+                      wifiModal(snapshot.data[i].ssid.toString());
+                    }
+                   });
+                 },
                );
+             }
+             else if(snapshot.data != null && snapshot.data.length > i){
+               return Container();
              }
            },
         );

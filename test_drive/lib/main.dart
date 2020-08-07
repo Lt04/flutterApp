@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: "Item List",),
+      home: MyHomePage(title: "Wifi List",),
     );
   }
 }
