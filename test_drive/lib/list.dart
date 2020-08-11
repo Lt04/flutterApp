@@ -8,6 +8,7 @@ import 'package:wifi/wifi.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:async';
 import 'package:test_drive/menu.dart';
+import 'package:test_drive/actions.dart';
 
 
 class PasteList extends StatefulWidget{
@@ -95,11 +96,7 @@ class ListState extends State<PasteList>{
                       wifiModal(snapshot.data[i].ssid.toString());
                     }
                     else if(name != null && name == snapshot.data[i].ssid.toString()){
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context)=>Menu(
-                          name: snapshot.data[i].ssid.toString(),
-                        ))
-                      ); 
+                      ServiceActions().actions("login", context, snapshot.data[i].ssid.toString());
                     }
                     else{
                       wifiModal(snapshot.data[i].ssid.toString());

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'package:test_drive/actions.dart';
+import 'package:wifi/wifi.dart';
+import 'package:http/http.dart' as http;
+
 
 class Menu extends StatefulWidget{
   String name;
@@ -17,9 +20,9 @@ class MenuState extends State<Menu>{
 
   List <Service> services = [
     new Service(
-        name:"login", 
-        tileName:"Log in", 
-        icon:Icon(Icons.battery_unknown)
+        name:"get_info", 
+        tileName:"Info", 
+        icon:Icon(Icons.info)
       ),
     ];
   
@@ -39,7 +42,7 @@ class MenuState extends State<Menu>{
             return ListTile(
               title: Text(services[i].tileName),
               onTap: () async{
-                ServiceActions().actions(services[i].name);
+                ServiceActions().actions(services[i].name, context, widget.name);
               },
               leading: services[i].icon
             );
