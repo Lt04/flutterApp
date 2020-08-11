@@ -33,7 +33,7 @@ class InfoState extends State<Info>{
   Widget build(BuildContext context){
    return Scaffold(
       appBar: AppBar(title: Text("Info")),
-      body: Column(
+      body: ListView(
         children: [
           ListTile(leading: Text("Model:"), title: Text(widget.model),),
           ListTile(leading: Text("Serial:"), title: Text(widget.serial)),

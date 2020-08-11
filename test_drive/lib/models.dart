@@ -37,3 +37,39 @@ class InfoResp{
     );
   }
 }
+
+class ConfigResp{
+  final String model;
+  final String api_key;
+  final String keyy;
+  final String disabled;
+  final String netmask;
+  final String gateway;
+  final String ipaddr;
+  final String proto;
+  final String mode;
+  final String tcp_port;
+  final String rain_send_url;
+  final String timezone;
+  final String datetime;
+
+  ConfigResp._({this.model, this.api_key, this.keyy, this.disabled, this.netmask, this.gateway, this.ipaddr, this.mode, this.proto, this.rain_send_url, this.tcp_port, this.datetime, this.timezone});
+
+  factory ConfigResp.fromJson(Map<String, dynamic> json){
+    return new ConfigResp._(
+      api_key: json['api_key'],
+      model: json['model'],
+      gateway: json['gateway'],
+      disabled: json['disabled'],
+      netmask: json['netmask'],
+      keyy: json['key'],
+      ipaddr: json['ipaddr'],
+      mode: json['mode'],
+      proto: json['proto'],
+      rain_send_url: json['rain_send_url'],
+      tcp_port: json['tcp_port'],
+      timezone: json['timezone'],
+      datetime: json['datetime']
+    );
+  }
+}

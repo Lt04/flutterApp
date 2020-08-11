@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:test_drive/menu.dart';
 import 'package:test_drive/models.dart';
 import 'package:test_drive/info.dart';
+import 'package:test_drive/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -29,23 +30,11 @@ class ServiceActions{
 
       case 'get_info':{
         infoAction(context);
-        /*FutureBuilder<InfoResp>(
-          future: resp,
-          builder: (context, snapshot) {
-            print(snapshot.data.antennas);
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context)=>Info(
-                model: snapshot.data.model,
-                antennas: snapshot.data.antennas,
-                status: snapshot.data.status,
-                serial: snapshot.data.serial,
-                connected: snapshot.data.connected,
-                regions: snapshot.data.regions,
-                power_range: snapshot.data.power_range,
-              ))
-            ); 
-          },
-        );*/
+      }
+      break;
+
+      case 'get_config':{
+        configAction(context);
       }
       break;
 
@@ -81,7 +70,33 @@ class ServiceActions{
     );
     return res;
   }
+
+  Future<ConfigResp> configAction(BuildContext context) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    final response = await http.get('http://192.168.56.55/config', headers: {"token": token});
+    ConfigResp res = ConfigResp.fromJson(jsonDecode(response.body));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context)=>Config(
+        model: res.model,
+        api_key: res.api_key,
+        gateway: res.gateway,
+        disabled: res.disabled,
+        netmask: res.netmask,
+        keyy: res.keyy,
+        ipaddr: res.ipaddr,
+        mode: res.mode,
+        proto: res.proto,
+        rain_send_url: res.rain_send_url,
+        tcp_port: res.tcp_port,
+        timezone: res.timezone,
+        datetime: res.datetime
+      ))
+    );
+    return res;
+  }
 }
+
 
 void loginModal(BuildContext context, String readerName) {
     String message = "";

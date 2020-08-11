@@ -20,11 +20,16 @@ class MenuState extends State<Menu>{
 
   List <Service> services = [
     new Service(
-        name:"get_info", 
-        tileName:"Info", 
-        icon:Icon(Icons.info)
-      ),
-    ];
+      name:"get_info", 
+      tileName:"Info", 
+      icon:Icon(Icons.info)
+    ),
+    new Service(
+      name: "get_config",
+      tileName: "Config",
+      icon: Icon(Icons.settings)
+    )
+  ];
   
 
   @override
