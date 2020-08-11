@@ -73,3 +73,25 @@ class ConfigResp{
     );
   }
 }
+
+class BlocklyResp{
+  final String region;
+  final String q_dynamic;
+  final String q_value;
+  final String pyfile;
+  final String xmlfile;
+  final String status;
+
+  BlocklyResp._({this.region, this.q_dynamic, this.q_value, this.pyfile, this.xmlfile, this.status});
+
+  factory BlocklyResp.fromJson(Map<String, dynamic> json){
+    return new BlocklyResp._(
+      region: json['region'],
+      q_dynamic: json['Q_dynamic'].toString(),
+      q_value: json['Q_value'].toString(),
+      pyfile: json['pyfile'],
+      xmlfile: json['xmlfile'],
+      status: json['status']
+    );
+  }
+}

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:convert';
 import 'package:test_drive/actions.dart';
-import 'package:wifi/wifi.dart';
-import 'package:http/http.dart' as http;
-
 
 class Menu extends StatefulWidget{
   String name;
@@ -28,6 +24,11 @@ class MenuState extends State<Menu>{
       name: "get_config",
       tileName: "Config",
       icon: Icon(Icons.settings)
+    ),
+    new Service(
+      name: "blockly_get_current",
+      tileName: "Blockly get current",
+      icon: Icon(Icons.album)
     )
   ];
   

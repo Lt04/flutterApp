@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:test_drive/menu.dart';
 import 'package:test_drive/models.dart';
 import 'package:test_drive/info.dart';
 import 'package:test_drive/config.dart';
+import 'package:test_drive/blockly.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -38,6 +37,11 @@ class ServiceActions{
       }
       break;
 
+      case 'blockly_get_current':{
+        blocklyAction(context);
+      }
+      break;
+
       default: {
   
       }
@@ -66,6 +70,24 @@ class ServiceActions{
         connected: res.connected,
         regions: res.regions,
         power_range: res.power_range,
+      ))
+    );
+    return res;
+  }
+
+  Future<BlocklyResp> blocklyAction(BuildContext context) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    final response = await http.get('http://192.168.56.55/blockly', headers: {"token": token});
+    BlocklyResp res = BlocklyResp.fromJson(jsonDecode(response.body));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context)=>Blockly(
+        status: res.status,
+        region: res.region,
+        q_dynamic: res.q_dynamic,
+        q_value: res.q_value,
+        pyfile: res.pyfile,
+        xmlfile: res.xmlfile,
       ))
     );
     return res;

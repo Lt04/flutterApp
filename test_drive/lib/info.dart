@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:convert';
-import 'package:test_drive/actions.dart';
-
 
 class Info extends StatefulWidget{
   String model;
