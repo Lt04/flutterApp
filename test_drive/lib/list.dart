@@ -8,6 +8,7 @@ import 'package:wifi/wifi.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:async';
 import 'package:test_drive/actions.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class PasteList extends StatefulWidget{
@@ -47,14 +48,14 @@ class ListState extends State<PasteList>{
     }
   }
 
-  void wifiModal(String name) {
+  wifiModal(String name, String message){
     TextEditingController textController = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: new Text("Password"),
-          content: TextField(controller: textController),
+          content: Column(children: [TextField(controller: textController), Text(message)]),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Close"),
@@ -68,6 +69,11 @@ class ListState extends State<PasteList>{
                 Wifi.connection(name, textController.text).then((result){
                   if(result == WifiState.success){
                     Navigator.of(context).pop();
+                  }
+                  else{
+                    Navigator.of(context).pop();
+                    message = "Password is invalid";
+                    wifiModal(name, message);
                   }
                 });
               },
@@ -92,13 +98,13 @@ class ListState extends State<PasteList>{
                  onTap: (){
                    Connectivity().getWifiName().then((name){
                     if(name == null){
-                      wifiModal(snapshot.data[i].ssid.toString());
+                      wifiModal(snapshot.data[i].ssid.toString(), "");
                     }
                     else if(name != null && name == snapshot.data[i].ssid.toString()){
                       ServiceActions().actions("login", context, snapshot.data[i].ssid.toString());
                     }
                     else{
-                      wifiModal(snapshot.data[i].ssid.toString());
+                      wifiModal(snapshot.data[i].ssid.toString(), "");  
                     }
                    });
                  },

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:test_drive/check_update.dart';
 import 'package:test_drive/menu.dart';
 import 'package:test_drive/models.dart';
 import 'package:test_drive/info.dart';
@@ -23,7 +24,7 @@ class ServiceActions{
   void actions(String name, BuildContext context, String readerName){
     switch(name){
       case 'login':{
-        loginModal(context, readerName);
+        loginModal(context, readerName, "");
       }
       break;
 
@@ -42,6 +43,11 @@ class ServiceActions{
       }
       break;
 
+      case 'check_update':{
+        checkUpdateAction(context);
+      }
+      break;
+
       default: {
   
       }
@@ -49,11 +55,24 @@ class ServiceActions{
     }
   }
 
-  Future<LoginResp> loginAction(String user, String password) async{
-    var jsonLogin = jsonEncode({"user": user, password: password});
-    final response = await http.post('http://192.168.56.55/login', headers: {'Content-Type':'application/json'}, body: jsonLogin);
-    LoginResp res = LoginResp.fromJson(jsonDecode(response.body));
-    return res;
+  Future<LoginResp> loginAction(String user, String password, BuildContext context, String readerName, UIDResp uid) async{
+    LoginResp res;
+    try{
+      var jsonLogin = jsonEncode({"user": user, "password": password});
+      final response = await http.post('http://192.168.56.55/login', headers: {'Content-Type':'application/json'}, body: jsonLogin);
+      res = LoginResp.fromJson(jsonDecode(response.body));
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context)=>Menu(
+            name: readerName,
+            version: uid.version
+          ))
+        ); 
+      return res;
+    }catch(error){
+      Navigator.of(context).pop();
+      loginModal(context, readerName, "Credentials are invalid");
+      return res;
+    }
   }
 
   Future<InfoResp> infoAction(BuildContext context) async{
@@ -70,6 +89,21 @@ class ServiceActions{
         connected: res.connected,
         regions: res.regions,
         power_range: res.power_range,
+      ))
+    );
+    return res;
+  }
+
+  Future<CheckUpdateResp> checkUpdateAction(BuildContext context) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    final response = await http.get('http://192.168.56.55/check_update', headers: {"token": token});
+    CheckUpdateResp res = CheckUpdateResp.fromJson(jsonDecode(response.body));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context)=>CheckUpdate(
+        status: res.status,
+        version: res.version,
+        versions: res.versions
       ))
     );
     return res;
@@ -119,9 +153,7 @@ class ServiceActions{
   }
 }
 
-
-void loginModal(BuildContext context, String readerName) {
-    String message = "";
+void loginModal(BuildContext context, String readerName, String message) {
     TextEditingController textController = TextEditingController();
     TextEditingController textController2 = TextEditingController();
     showDialog(
@@ -146,7 +178,9 @@ void loginModal(BuildContext context, String readerName) {
             new FlatButton(
               child: Text("Log in"),
               onPressed: () async{
-                /*var response = ServiceActions().loginAction(textController.text, textController2.text);
+                final response_uid = await http.get('http://192.168.56.55/uid');
+                UIDResp res = UIDResp.fromJson(jsonDecode(response_uid.body));
+                var response = ServiceActions().loginAction(textController.text, textController2.text, context, readerName, res);
                 FutureBuilder<LoginResp>(
                   future: response,
                   builder: (context, snapshot) {
@@ -154,19 +188,7 @@ void loginModal(BuildContext context, String readerName) {
                       prefs.setString('token', snapshot.data.token);
                     });   
                   },
-                );*/
-                if(textController.text == "admin" && textController2.text == "admin"){
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  prefs.setString('token', "7bc495f0b3e939d95314aa9f5775cb987d0cb44a");
-                  Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context)=>Menu(
-                          name: readerName,
-                        ))
-                  ); 
-                }
-                else{
-                  message = "Login or password is invalid.";
-                }
+                );
               },
             )
           ],

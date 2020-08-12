@@ -95,3 +95,34 @@ class BlocklyResp{
     );
   }
 }
+
+
+class UIDResp{
+  final String uid;
+  final String version;
+
+  UIDResp._({this.uid, this.version});
+
+  factory UIDResp.fromJson(Map<String, dynamic> json){
+    return new UIDResp._(
+      version: json['sw_version'],
+      uid: json['uid'],
+    );
+  }
+}
+
+class CheckUpdateResp{
+  final String status;
+  final String version;
+  final List<dynamic> versions;
+
+  CheckUpdateResp._({this.status, this.version, this.versions});
+
+  factory CheckUpdateResp.fromJson(Map<String, dynamic> json){
+    return new CheckUpdateResp._(
+      version: json['current_version'],
+      status: json['status'],
+      versions: json['available_versions']
+    );
+  }
+}

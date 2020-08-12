@@ -4,8 +4,9 @@ import 'package:test_drive/actions.dart';
 
 class Menu extends StatefulWidget{
   String name;
+  String version;
 
-  Menu({this.name});
+  Menu({this.name, this.version});
 
   @override
   MenuState createState() => MenuState();
@@ -26,9 +27,9 @@ class MenuState extends State<Menu>{
       icon: Icon(Icons.settings)
     ),
     new Service(
-      name: "blockly_get_current",
-      tileName: "Blockly get current",
-      icon: Icon(Icons.album)
+      icon: Icon(Icons.update),
+      tileName: "Available updates",
+      name: "check_update"
     )
   ];
   
@@ -41,7 +42,7 @@ class MenuState extends State<Menu>{
   @override
   Widget build(BuildContext context){
    return Scaffold(
-      appBar: AppBar(title: Text(widget.name)),
+      appBar: AppBar(title: Text(widget.name + " " + widget.version)),
       body: ListView.builder(
         itemBuilder: (context, i){
           if(services.length > i){

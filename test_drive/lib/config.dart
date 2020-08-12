@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Config extends StatefulWidget{
   String model;
@@ -49,8 +52,81 @@ class ConfigState extends State<Config>{
           ListTile(leading: Text("TCP port:"), title: Text(widget.tcp_port)),
           ListTile(leading: Text("Rain send URL"), title: Text(widget.rain_send_url)),
           ListTile(leading: Text("Timezone:"), title: Text(widget.timezone)),
-          ListTile(leading: Text("Datetime:"), title: Text(widget.datetime))
+          ListTile(leading: Text("Datetime:"), title: Text(widget.datetime)),
+          FloatingActionButton(
+            onPressed: (){
+              netConfigModal(widget.proto, widget.ipaddr, widget.netmask, widget.gateway, "");
+            },
+            child: Icon(Icons.wifi),
+            backgroundColor: Colors.green,
+          )
       ],)
+    );
+  }
+
+  void netConfigModal(String proto, String ipaddr, String netmask, String gateway, String message) {
+    TextEditingController textController = TextEditingController();
+    TextEditingController textController2 = TextEditingController();
+    TextEditingController textController3 = TextEditingController();
+    TextEditingController textController4 = TextEditingController();
+    textController.text = proto;
+    textController2.text = ipaddr;
+    textController3.text = netmask;
+    textController4.text = gateway;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            children: [
+              Text("Proto:"),
+              TextField(controller: textController),
+              Text("IP address:"),
+              TextField(controller: textController2,),
+              Text("Netmask:"),
+              TextField(controller: textController3,),
+              Text("Gateway:"),
+              TextField(controller: textController4),
+              Text(message)
+            ],
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: Text("Confirm"),
+              onPressed: () async{
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String token = prefs.getString('token');
+                var jsonNet;
+                if(textController.text == "dhcp"){
+                  jsonNet = jsonEncode({"proto": textController.text});
+                }
+                else{
+                  jsonNet = jsonEncode({"proto": textController.text, "ipaddr": textController2.text, "netmask": textController3.text, "gateway": textController4.text});
+                }
+                try{
+                  var response = await http.post('http://192.168.56.55/config/network', headers: {'Content-Type':'application/json', 'token': token}, body: jsonNet);
+                  setState((){
+                    widget.proto = textController.text;
+                    widget.ipaddr = textController2.text;
+                    widget.netmask = textController3.text;
+                    widget.gateway = textController4.text;
+                  });
+                  Navigator.of(context).pop();
+                }catch(error){
+                  Navigator.of(context).pop();
+                  netConfigModal(proto, ipaddr, netmask, gateway, "Error occured");
+                }
+              },
+            )
+          ],
+        );
+      },
     );
   }
 

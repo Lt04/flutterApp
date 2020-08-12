@@ -33,6 +33,7 @@ dependencies:
   connectivity: ^0.4.9
   wifi: ^0.1.5
   shared_preferences: ^0.5.8
+  fluttertoast: ^7.0.2
 
 dev_dependencies:
   flutter_test:

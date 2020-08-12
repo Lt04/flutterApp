@@ -19,8 +19,6 @@ class Info extends StatefulWidget{
 
 class InfoState extends State<Info>{
 
-  
-
   @override
   void initState() {
     super.initState();
