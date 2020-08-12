@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:test_drive/check_update.dart';
+import 'package:test_drive/list_wifi.dart';
 import 'package:test_drive/menu.dart';
 import 'package:test_drive/models.dart';
 import 'package:test_drive/info.dart';
@@ -48,11 +49,29 @@ class ServiceActions{
       }
       break;
 
+      case 'list_wifi':{
+        listWifiAction(context);
+      }
+      break;
+
       default: {
   
       }
       break;
     }
+  }
+
+  Future<List<ListWifiResp>> listWifiAction(BuildContext context) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    final response = await http.get('http://192.168.56.55/network/wifi/list', headers: {"token": token});
+    List<ListWifiResp> list = (json.decode(response.body) as List).map((data) => ListWifiResp.fromJson(data)).toList();
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context)=>ListWifi(
+        list: list
+      ))
+    );
+    return list;
   }
 
   Future<LoginResp> loginAction(String user, String password, BuildContext context, String readerName, UIDResp uid) async{

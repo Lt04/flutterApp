@@ -126,3 +126,33 @@ class CheckUpdateResp{
     );
   }
 }
+
+class ListWifiResp{
+  final String channel;
+  final String ssid;
+  final String bssid;
+  final String cipher;
+  final String encryptionString;
+  final String encryption;
+  final String signalStrength;
+  final String wirelessMode;
+  final String ext_ch;
+  final String rssi;
+
+  ListWifiResp._({this.bssid, this.channel, this.cipher, this.encryption, this.encryptionString, this.ext_ch, this.rssi, this.signalStrength, this.ssid, this.wirelessMode});
+
+  factory ListWifiResp.fromJson(Map<String, dynamic> json){
+    return new ListWifiResp._(
+      bssid: json['bssid'],
+      channel: json['channel'].toString(),
+      ssid: json['ssid'],
+      cipher: json['cipher'],
+      encryption: json['encryption'],
+      encryptionString: json['encryptionString'],
+      signalStrength: json['signalStrength'].toString(),
+      wirelessMode: json['wirelessMode'],
+      ext_ch: json['ext-ch'],
+      rssi: json['rssi'].toString()
+    );
+  }
+}

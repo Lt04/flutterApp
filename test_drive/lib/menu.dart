@@ -30,6 +30,11 @@ class MenuState extends State<Menu>{
       icon: Icon(Icons.update),
       tileName: "Available updates",
       name: "check_update"
+    ),
+    new Service(
+      tileName: "Wifi list",
+      icon: Icon(Icons.wifi),
+      name: "list_wifi"
     )
   ];
   
