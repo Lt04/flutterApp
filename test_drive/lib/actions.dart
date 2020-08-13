@@ -54,6 +54,16 @@ class ServiceActions{
       }
       break;
 
+      case 'reset_factory':{
+        factoryModal(context, "");
+      }
+      break;
+
+      case 'set_password':{
+        passModal(context, "");
+      }
+      break;
+
       default: {
   
       }
@@ -208,6 +218,107 @@ void loginModal(BuildContext context, String readerName, String message) {
                     });   
                   },
                 );
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+
+void factoryModal(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            children: [
+              Text(message)
+            ],),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: Text("Reset"),
+              onPressed: () async{
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String token = prefs.getString('token');
+                var jsonReset = jsonEncode({});
+                try{
+                  var response = await http.post('http://192.168.56.55/reset_factory', headers: {'Content-Type':'application/json', 'token': token}, body: jsonReset);
+                  if(response.statusCode == 200){
+                    Navigator.of(context).pop();
+                  }
+                  else{
+                    Navigator.of(context).pop();
+                    factoryModal(context, 'Error occured');
+                  }
+                }catch(error){
+                  Navigator.of(context).pop();
+                  factoryModal(context, 'Error occured');
+                }
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void passModal(BuildContext context, String message) {
+    TextEditingController textController = TextEditingController();
+    TextEditingController textController2 = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            children: [
+              Text("New password:"),
+              TextField(controller: textController),
+              Text("Confirm password"),
+              TextField(controller: textController2,),
+              Text(message)
+            ],),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: Text("Confirm"),
+              onPressed: () async{
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String token = prefs.getString('token');
+                if(textController2.text != textController.text){
+                  Navigator.of(context).pop();
+                  passModal(context, "Passwords are not identical");
+                }
+                else{
+                  var jsonReset = jsonEncode({"password": textController.text, "password_confirm": textController2.text});
+                  try{
+                    var response = await http.post('http://192.168.56.55/password', headers: {'Content-Type':'application/json', 'token': token}, body: jsonReset);
+                    if(response.statusCode == 200){
+                      Navigator.of(context).pop();
+                    }
+                    else{
+                      PassResp res = PassResp.fromJson(jsonDecode(response.body));
+                      Navigator.of(context).pop();
+                      var res2 = res.validation.values.toList();
+                      factoryModal(context, res2[0]);
+                    }
+                  }catch(error){
+                    Navigator.of(context).pop();
+                    factoryModal(context, 'Error occured');
+                  }
+                }
               },
             )
           ],

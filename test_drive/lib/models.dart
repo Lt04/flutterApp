@@ -156,3 +156,17 @@ class ListWifiResp{
     );
   }
 }
+
+class PassResp{
+  final String errors;
+  final Map<String, dynamic> validation;
+
+  PassResp._({this.errors, this.validation});
+
+  factory PassResp.fromJson(Map<String, dynamic> json){
+    return new PassResp._(
+      errors: json['errors'], 
+      validation: json['validation']
+    );
+  }
+}

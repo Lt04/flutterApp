@@ -35,6 +35,16 @@ class MenuState extends State<Menu>{
       tileName: "Wifi list",
       icon: Icon(Icons.wifi),
       name: "list_wifi"
+    ),
+    new Service(
+      icon: Icon(Icons.refresh),
+      tileName: "Reset factory",
+      name: "reset_factory"
+    ),
+    new Service(
+      tileName: "Change password",
+      icon: Icon(Icons.text_fields),
+      name: "set_password"
     )
   ];
   
