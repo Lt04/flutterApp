@@ -69,9 +69,74 @@ class ConfigState extends State<Config>{
               },
               child: Icon(Icons.router),
               backgroundColor: Colors.green,
-            ),) 
+            ),),
+            Align(alignment: Alignment.center, child: FloatingActionButton(
+              heroTag: "btn3",
+              onPressed: (){
+                dateConfigModal(widget.datetime, widget.timezone, "");
+              },
+              child: Icon(Icons.router),
+              backgroundColor: Colors.green,
+            ),)  
           ])    
       ],)
+    );
+  }
+
+  void dateConfigModal(String datetime, String timezone, String message) {
+    TextEditingController textController = TextEditingController();
+    TextEditingController textController2 = TextEditingController();
+    textController.text = datetime;
+    textController2.text = timezone;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: ListView(
+            children: [
+              Text("Datetime:"),
+              TextField(controller: textController),
+              Text("Timezone:"),
+              TextField(controller: textController2,),
+              Text(message)
+            ],
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: Text("Confirm"),
+              onPressed: () async{
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String token = prefs.getString('token');
+                var jsonNet;
+                jsonNet = jsonEncode({"datetime": textController.text, "timezone": textController2.text});
+                try{
+                  var response = await http.post('http://192.168.56.55/time', headers: {'Content-Type':'application/json', 'token': token}, body: jsonNet);
+                  if(response.statusCode == 200){
+                    setState((){
+                      widget.datetime = textController.text;
+                      widget.timezone = textController2.text;
+                    });
+                    Navigator.of(context).pop();
+                  }
+                  else{
+                    Navigator.of(context).pop();
+                    dateConfigModal(datetime, timezone, "Error occured");
+                  }       
+                }catch(error){
+                  Navigator.of(context).pop();
+                  readerConfigModal(datetime, timezone, "Error occured");
+                }
+              },
+            )
+          ],
+        );
+      },
     );
   }
 
