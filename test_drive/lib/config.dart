@@ -75,7 +75,7 @@ class ConfigState extends State<Config>{
               onPressed: (){
                 dateConfigModal(widget.datetime, widget.timezone, "");
               },
-              child: Icon(Icons.router),
+              child: Icon(Icons.date_range),
               backgroundColor: Colors.green,
             ),)  
           ])    

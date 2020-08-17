@@ -45,6 +45,11 @@ class MenuState extends State<Menu>{
       tileName: "Change password",
       icon: Icon(Icons.text_fields),
       name: "set_password"
+    ),
+    new Service(
+      tileName: "Simple",
+      icon: Icon(Icons.question_answer),
+      name: "simple_config"
     )
   ];
   

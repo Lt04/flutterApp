@@ -8,6 +8,7 @@ import 'package:test_drive/models.dart';
 import 'package:test_drive/info.dart';
 import 'package:test_drive/config.dart';
 import 'package:test_drive/blockly.dart';
+import 'package:test_drive/simple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -64,6 +65,11 @@ class ServiceActions{
       }
       break;
 
+      case 'simple_config':{
+        simpleAction(context);
+      }
+      break;
+
       default: {
   
       }
@@ -82,6 +88,24 @@ class ServiceActions{
       ))
     );
     return list;
+  }
+
+  Future<SimpleResp> simpleAction(BuildContext context) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    final response = await http.get('http://192.168.56.55/simple/config', headers: {"token": token});
+    SimpleResp res = SimpleResp.fromJson(jsonDecode(response.body));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context)=>Simple(
+        antennas: res.antennas,
+        power: res.power,
+        regions: res.regions,
+        time: res.time,
+        inputs: res.inputs,
+        outputs: res.outputs
+      ))
+    );
+    return res;
   }
 
   Future<LoginResp> loginAction(String user, String password, BuildContext context, String readerName, UIDResp uid) async{

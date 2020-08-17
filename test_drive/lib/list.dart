@@ -90,7 +90,7 @@ class ListState extends State<PasteList>{
       builder: (context, snapshot){
         return ListView.builder(
            itemBuilder: (context, i){
-             if(snapshot.data != null && snapshot.data.length > i && snapshot.data[i].ssid.toString().substring(0,7) == 'EREFIDE'){
+             if(snapshot.data != null && snapshot.data.length > i && snapshot.data[i].ssid.toString().length > 6 && snapshot.data[i].ssid.toString().substring(0,7) == 'EREFIDE'){
                return ListTile(
                  subtitle: Text(snapshot.data[i].level.toString()),
                  title: Text(snapshot.data[i].ssid.toString()),

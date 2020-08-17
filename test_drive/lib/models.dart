@@ -170,3 +170,26 @@ class PassResp{
     );
   }
 }
+
+class SimpleResp{
+  final List<dynamic> antennas;
+  final Map<String, dynamic> power;
+  final List<dynamic> regions;
+  final Map<String, dynamic> time;
+  final List<dynamic> inputs;
+  final List<dynamic> outputs;
+
+  SimpleResp._({this.antennas, this.regions, this.inputs, this.outputs, this.power, this.time});
+
+  factory SimpleResp.fromJson(Map<String, dynamic> json){
+    return new SimpleResp._(
+      antennas: json['antennas'],
+      power: json['power'],
+      regions: json['regions'],
+      time: json['time'],
+      inputs: json['inputs'],
+      outputs: json['outputs']
+    );
+  }
+
+}
