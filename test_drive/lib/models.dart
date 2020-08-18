@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class LoginResp{
   final String status;
   final String errors;
@@ -191,5 +193,28 @@ class SimpleResp{
       outputs: json['outputs']
     );
   }
+}
 
+class ReadResp{
+  final String epc;
+  final int phase;
+  final int antenna;
+  final int read_count;
+  final int rssi;
+  final int frequency;
+  final double timestamp;
+
+  ReadResp._({this.epc, this.phase, this.antenna, this.read_count, this.rssi, this.frequency, this.timestamp});
+
+  factory ReadResp.fromJson(Map<String, dynamic> json){
+    return new ReadResp._(
+      epc: json['epc'],
+      phase: json['phase'],
+      antenna: json['antenna'],
+      read_count: json['read_count'],
+      rssi: json['rssi'],
+      frequency: json['frequency'],
+      timestamp: json['timestamp']
+    );
+  }
 }
