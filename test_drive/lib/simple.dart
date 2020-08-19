@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test_drive/taglist.dart';
 import 'package:test_drive/models.dart';
 import 'dart:convert';
 
@@ -83,8 +84,8 @@ class SimpleState extends State<Simple>{
               heroTag: "btn1",
               child: Icon(Icons.router),
               backgroundColor: Colors.green,
-            ),)  
-          ],)
+            ),), 
+        ],)
       ],)
     );
   }
@@ -161,12 +162,14 @@ class SimpleState extends State<Simple>{
                     var response = await http.get('http://192.168.56.55/simple/read?antennas=' + textController.text + '&power=' + textController2.text + '&region=' + textController4.text + '&time=' + textController3.text, headers: {'token': token});
                     if(response.statusCode == 200){
                       List<ReadResp> list = (json.decode(response.body) as List).map((data) => ReadResp.fromJson(data)).toList();
-                      String msg = "";
-                      for(var i=0; i<list.length; i++){
-                        msg += i.toString() + ': ' + list[i].epc.toString();
-                      }
-                      Navigator.of(context).pop();
-                      readModal(antennas, power, time, regions, msg);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context)=>TagList(
+                          list: list,
+                          antennas: antennas,
+                          regions: regions,
+                          power: power
+                        ))
+                      );
                     }
                     else{
                       Navigator.of(context).pop();
@@ -184,5 +187,7 @@ class SimpleState extends State<Simple>{
       },
     );
   }
+
+  
 
 }
