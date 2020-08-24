@@ -73,13 +73,13 @@ class SimpleState extends State<Simple>{
           ListTile(leading: Text("Antennas:"), title: Text(ant)),
           ListTile(leading: Text("Power:"), title: Text('[' + widget.power.values.first.toString() + ', ' + widget.power.values.last.toString() + ']'),),
           ListTile(leading: Text("Regions:"), title: Text(reg)),
-          ListTile(leading: Text("Time:"), title: Text('[' + widget.time.values.first.toString() + ', ' + widget.time.values.last.toString() + ']'),),
+          ListTile(leading: Text("Time:"), title: Text('[' + widget.time.values.first.toString() + ', ' + widget.time.values.last.toString() + '][ms]'),),
           ListTile(leading: Text("Inputs:"), title: Text(inp)),
           ListTile(leading: Text("Outputs:"), title: Text(outp)),
           Row(children: [
             Align(alignment: Alignment.bottomLeft, child: FloatingActionButton(
               onPressed: () async{
-                readModal(widget.antennas, widget.power, widget.time, widget.regions,  "");
+                readModal(widget.antennas, widget.power, widget.time, widget.regions,  "",  "", "");
               },
               heroTag: "btn1",
               child: Icon(Icons.router),
@@ -90,11 +90,18 @@ class SimpleState extends State<Simple>{
     );
   }
 
-  void readModal(List<dynamic> antennas, Map<String, dynamic> power, Map<String, dynamic> time, List<dynamic> regions, String message) {
-    TextEditingController textController = TextEditingController();
+  String dropRegion = 'EU3';
+  String dropAnt = '1';
+
+  void readModal(List<dynamic> antennas, Map<String, dynamic> power, Map<String, dynamic> time, List<dynamic> regions, String message, String txt2, String txt3) {
     TextEditingController textController2 = TextEditingController();
     TextEditingController textController3 = TextEditingController();
-    TextEditingController textController4 = TextEditingController();
+    textController2.text = txt2;
+    textController3.text = txt3;
+    List<String> ant = [];
+    for(var i=0; i<antennas.length; i++){
+      ant.addAll([antennas[i].toString()]);
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -102,13 +109,45 @@ class SimpleState extends State<Simple>{
           content: ListView(
             children: [
               Text("Antenna:"),
-              TextField(controller: textController),
+              DropdownButton<String>(
+                value: dropAnt,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                  dropAnt = newValue;
+                  });
+                  readModal(antennas , power, time, regions, "", textController2.text, textController3.text);
+                },
+                items: ant
+                .map<DropdownMenuItem<String>>((dynamic value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text("Power:"),
               TextField(controller: textController2),
               Text("Time:"),
               TextField(controller: textController3),
               Text("Region:"),
-              TextField(controller: textController4),
+              DropdownButton<String>(
+                value: dropRegion,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                  dropRegion = newValue;
+                  });
+                  readModal(antennas , power, time, regions, "", textController2.text, textController3.text);
+                },
+                items: regions
+                .map<DropdownMenuItem<String>>((dynamic value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text(message)
             ],
           ),
@@ -122,44 +161,22 @@ class SimpleState extends State<Simple>{
             new FlatButton(
               child: Text("Read"),
               onPressed: () async{
-                bool isantenna = false;
                 bool dothings = true;
-                for(var i = 0; i<antennas.length; i++){
-                  if(antennas[i].toString() == textController.text){
-                    isantenna = true;
-                  }
-                }
-                if(isantenna == false){
-                  dothings = false;
-                  Navigator.of(context).pop();
-                  readModal(antennas, power, time, regions, "Antenna could not be found.");
-                }
                 if(power.values.first > int.parse(textController2.text) || power.values.last < int.parse(textController2.text)){
                   Navigator.of(context).pop();
-                  readModal(antennas, power, time, regions, "Power is out of range.");
+                  readModal(antennas, power, time, regions, "Power is out of range.","", "");
                   dothings = false;
                 }
                 if(time.values.first > int.parse(textController3.text) || time.values.last < int.parse(textController3.text)){
                   Navigator.of(context).pop();
-                  readModal(antennas, power, time, regions, "Time is out of range.");
+                  readModal(antennas, power, time, regions, "Time is out of range.", "", "");
                   dothings = false;
-                }
-                bool isregion = false;
-                for(var i = 0; i<regions.length; i++){
-                  if(regions[i].toString() == textController4.text){
-                    isregion = true;
-                  }
-                }
-                if(isregion == false){
-                  dothings = false;
-                  Navigator.of(context).pop();
-                  readModal(antennas, power, time, regions, "Region could not be found.");
                 }
                 if(dothings == true){
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   String token = prefs.getString('token');
                   try{
-                    var response = await http.get('http://192.168.56.55/simple/read?antennas=' + textController.text + '&power=' + textController2.text + '&region=' + textController4.text + '&time=' + textController3.text, headers: {'token': token});
+                    var response = await http.get('http://192.168.56.55/simple/read?antennas=' + dropAnt + '&power=' + textController2.text + '&region=' + dropRegion + '&time=' + textController3.text, headers: {'token': token});
                     if(response.statusCode == 200){
                       List<ReadResp> list = (json.decode(response.body) as List).map((data) => ReadResp.fromJson(data)).toList();
                       Navigator.of(context).push(
@@ -173,11 +190,11 @@ class SimpleState extends State<Simple>{
                     }
                     else{
                       Navigator.of(context).pop();
-                      readModal(antennas, power, time, regions, "Error occured");
+                      readModal(antennas, power, time, regions, "Error occured", "", "");
                     }       
                   }catch(error){
                     Navigator.of(context).pop();
-                    readModal(antennas, power, time, regions, "Error occured");
+                    readModal(antennas, power, time, regions, "Error occured", "", "");
                   }
                 }              
               },

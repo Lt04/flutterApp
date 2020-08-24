@@ -140,10 +140,10 @@ class ConfigState extends State<Config>{
     );
   }
 
+  String dropdownMode = 'simple';
+
   void readerConfigModal(String mode, String tcp_port, String message) {
-    TextEditingController textController = TextEditingController();
     TextEditingController textController2 = TextEditingController();
-    textController.text = mode;
     textController2.text = tcp_port;
     showDialog(
       context: context,
@@ -152,7 +152,23 @@ class ConfigState extends State<Config>{
           content: ListView(
             children: [
               Text("Mode:"),
-              TextField(controller: textController),
+              DropdownButton<String>(
+                value: dropdownMode,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                  dropdownMode = newValue;
+                  });
+                  readerConfigModal(dropdownMode, textController2.text, "");
+                },
+                items: <String>['simple', 'usb', 'tcp', 'rain', 'autonomous']
+                .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text("TCP port:"),
               TextField(controller: textController2,),
               Text(message)
@@ -171,12 +187,12 @@ class ConfigState extends State<Config>{
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 String token = prefs.getString('token');
                 var jsonNet;
-                jsonNet = jsonEncode({"mode": textController.text, "tcp_port": textController2.text});
+                jsonNet = jsonEncode({"mode": dropdownMode, "tcp_port": textController2.text});
                 try{
                   var response = await http.post('http://192.168.56.55/config/reader', headers: {'Content-Type':'application/json', 'token': token}, body: jsonNet);
                   if(response.statusCode == 200){
                     setState((){
-                      widget.mode = textController.text;
+                      widget.mode = dropdownMode;
                       widget.tcp_port = textController2.text;
                     });
                     Navigator.of(context).pop();
@@ -197,12 +213,12 @@ class ConfigState extends State<Config>{
     );
   }
 
+  String dropdownValue = "static";
+
   void netConfigModal(String proto, String ipaddr, String netmask, String gateway, String message) {
-    TextEditingController textController = TextEditingController();
     TextEditingController textController2 = TextEditingController();
     TextEditingController textController3 = TextEditingController();
     TextEditingController textController4 = TextEditingController();
-    textController.text = proto;
     textController2.text = ipaddr;
     textController3.text = netmask;
     textController4.text = gateway;
@@ -213,7 +229,23 @@ class ConfigState extends State<Config>{
           content: ListView(
             children: [
               Text("Proto:"),
-              TextField(controller: textController),
+              DropdownButton<String>(
+                value: dropdownValue,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                  dropdownValue = newValue;
+                  });
+                  netConfigModal(dropdownValue, textController2.text, textController3.text, textController4.text, "");
+                },
+                items: <String>['static', 'dhcp']
+                .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text("IP address:"),
               TextField(controller: textController2,),
               Text("Netmask:"),
@@ -236,17 +268,17 @@ class ConfigState extends State<Config>{
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 String token = prefs.getString('token');
                 var jsonNet;
-                if(textController.text == "dhcp"){
-                  jsonNet = jsonEncode({"proto": textController.text});
+                if(dropdownValue == "dhcp"){
+                  jsonNet = jsonEncode({"proto": dropdownValue});
                 }
                 else{
-                  jsonNet = jsonEncode({"proto": textController.text, "ipaddr": textController2.text, "netmask": textController3.text, "gateway": textController4.text});
+                  jsonNet = jsonEncode({"proto": dropdownValue, "ipaddr": textController2.text, "netmask": textController3.text, "gateway": textController4.text});
                 }
                 try{
                   var response = await http.post('http://192.168.56.55/config/network', headers: {'Content-Type':'application/json', 'token': token}, body: jsonNet);
                   if(response.statusCode == 200){
                     setState((){
-                    widget.proto = textController.text;
+                    widget.proto = dropdownValue;
                     widget.ipaddr = textController2.text;
                     widget.netmask = textController3.text;
                     widget.gateway = textController4.text;
