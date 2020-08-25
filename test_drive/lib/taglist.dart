@@ -36,7 +36,7 @@ class TagListState extends State<TagList>{
             return ListTile(
               title: Text(widget.list[i].epc),
               onTap: (){
-                epcModal(widget.antennas, widget.power, widget.regions, widget.list[i].epc, "");
+                epcModal(widget.antennas, widget.power, widget.regions, widget.list[i].epc, "", "");
               }, 
             );
           }
@@ -44,14 +44,19 @@ class TagListState extends State<TagList>{
       )      
     );
   }
+  String dropRegion = 'EU3';
+  String dropAnt = '1';
+  double valSlider = 20;
 
-  void epcModal(List<dynamic> antennas, Map<String, dynamic> power, List<dynamic> regions, String epc, String message) {
-    TextEditingController textController = TextEditingController();
-    TextEditingController textController2 = TextEditingController();
-    TextEditingController textController3 = TextEditingController();
+  void epcModal(List<dynamic> antennas, Map<String, dynamic> power, List<dynamic> regions, String epc,  String targ, String message) {
     TextEditingController textController4 = TextEditingController();
     TextEditingController textController5 = TextEditingController();
     textController4.text = epc;
+    textController5.text = targ;
+    List<String> ant = [];
+    for(var i=0; i<antennas.length; i++){
+      ant.addAll([antennas[i].toString()]);
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -59,11 +64,56 @@ class TagListState extends State<TagList>{
           content: ListView(
             children: [
               Text("Antenna:"),
-              TextField(controller: textController),
+              DropdownButton<String>(
+                value: dropAnt,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                  dropAnt = newValue;
+                  });
+                  epcModal(antennas , power, regions, textController4.text, textController5.text, "");
+                },
+                items: ant
+                .map<DropdownMenuItem<String>>((dynamic value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text("Power:"),
-              TextField(controller: textController2),
+              Slider(
+                value: valSlider,
+                min: power.values.first,
+                max: power.values.last,
+                divisions: 8,
+                label: valSlider.round().toString(),
+                onChanged: (double value) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    valSlider = value.floor().toDouble();
+                  });
+                  epcModal(antennas , power, regions, textController4.text, textController5.text, "");
+                },
+              ),
               Text("Region:"),
-              TextField(controller: textController3),
+              DropdownButton<String>(
+                value: dropRegion,
+                onChanged: (String newValue) {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    dropRegion = newValue;
+                  });
+                  epcModal(antennas , power, regions, textController4.text, textController5.text, "");
+                },
+                items: regions
+                .map<DropdownMenuItem<String>>((dynamic value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+                }).toList(),
+              ),
               Text("Epc code:"),
               TextField(controller: textController4),
               Text("Target epc:"),
@@ -81,53 +131,23 @@ class TagListState extends State<TagList>{
             new FlatButton(
               child: Text("Confirm"),
               onPressed: () async{
-                bool isantenna = false;
-                bool dothings = true;
-                for(var i = 0; i<antennas.length; i++){
-                  if(antennas[i].toString() == textController.text){
-                    isantenna = true;
-                  }
-                }
-                if(isantenna == false){
-                  dothings = false;
-                  Navigator.of(context).pop();
-                  epcModal(antennas, power, regions, epc,  "Antenna could not be found.");
-                }
-                if(power.values.first > int.parse(textController2.text) || power.values.last < int.parse(textController2.text)){
-                  Navigator.of(context).pop();
-                  epcModal(antennas, power, regions, epc, "Power is out of range.");
-                  dothings = false;
-                }
-                bool isregion = false;
-                for(var i = 0; i<regions.length; i++){
-                  if(regions[i].toString() == textController3.text){
-                    isregion = true;
-                  }
-                }
-                if(isregion == false){
-                  dothings = false;
-                  Navigator.of(context).pop();
-                  epcModal(antennas, power, regions, epc, "Region could not be found.");
-                }
-                if(dothings == true){
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  String token = prefs.getString('token');
-                  try{
-                    List<int> ant = [int.parse(textController.text)];
-                    var epcjson = jsonEncode({'power': textController2.text, 'region': textController3.text, 'antennas': ant, 'epc_code': textController4.text, 'epc_target': textController5.text});
-                    var response = await http.post('http://192.168.56.55/simple/write', headers: {'Content-Type':'application/json', 'token': token}, body: epcjson);
-                    if(response.statusCode == 200){
-                      Navigator.of(context).pop();
-                    }
-                    else{
-                      Navigator.of(context).pop();
-                      epcModal(antennas, power, regions, epc, "Error occured");
-                    }       
-                  }catch(error){
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String token = prefs.getString('token');
+                try{
+                  List<int> ant = [int.parse(dropAnt)];
+                  var epcjson = jsonEncode({'power': valSlider, 'region': dropRegion, 'antennas': ant, 'epc_code': textController4.text, 'epc_target': textController5.text});
+                  var response = await http.post('http://192.168.56.55/simple/write', headers: {'Content-Type':'application/json', 'token': token}, body: epcjson);
+                  if(response.statusCode == 200){
                     Navigator.of(context).pop();
-                    epcModal(antennas, power, regions, epc, "Error occured");
                   }
-                }              
+                  else{
+                    Navigator.of(context).pop();
+                    epcModal(antennas , power, regions, textController4.text, textController5.text, "");
+                  }       
+                }catch(error){
+                  Navigator.of(context).pop();
+                  epcModal(antennas , power, regions, textController4.text, textController5.text, "");
+                }            
               },
             )
           ],
