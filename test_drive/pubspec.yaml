@@ -33,8 +33,7 @@ dependencies:
   connectivity: ^0.4.9
   wifi: ^0.1.5
   shared_preferences: ^0.5.8
-  fluttertoast: ^7.0.2
-  badges: ^1.1.1
+  barcode_scan: ^3.0.1
 
 dev_dependencies:
   flutter_test:
