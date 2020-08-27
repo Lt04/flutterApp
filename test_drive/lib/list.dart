@@ -99,8 +99,7 @@ class ListState extends State<PasteList>{
                         onPressed: _scanQR,
                         icon: Icon(Icons.camera_alt),
                         backgroundColor: Colors.green,
-                        label: Text("Scan QR code"),
-                        
+                        label: Text("Scan QR code"),                 
                       );
              }
              else if(snapshot.data != null && snapshot.data.length > i){

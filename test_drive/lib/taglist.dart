@@ -81,7 +81,7 @@ class TagListState extends State<TagList>{
                 );
                 }).toList(),
               ),
-              Text("Power:"),
+              Text("Power: " + valSlider.toString()),
               Slider(
                 value: valSlider,
                 min: power.values.first,

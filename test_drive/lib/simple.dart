@@ -124,7 +124,7 @@ class SimpleState extends State<Simple>{
                 );
                 }).toList(),
               ),
-              Text("Power:"),
+              Text("Power: " + valSlider.toString()),
               Slider(
                 value: valSlider,
                 min: power.values.first,
@@ -139,7 +139,7 @@ class SimpleState extends State<Simple>{
                   readModal(antennas , power, time, regions, "");
                 },
               ),
-              Text("Time:"),
+              Text("Time: " + timeSlider.toString()),
               Slider(
                 value: timeSlider,
                 min: time.values.first.toDouble(),
